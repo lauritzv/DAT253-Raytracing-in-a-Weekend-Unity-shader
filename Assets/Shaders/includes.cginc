@@ -21,7 +21,8 @@ struct v2f
 	float4 vertex : SV_POSITION;
 };
 
-struct hit_record {
+struct hit_record
+{
 	float t;
 	vec3 position;
 	vec3 normal;
@@ -59,24 +60,74 @@ class ray
 	vec3 direction;
 };
 
-//does the ray hit the sphere?
-float hit_sphere(vec3 center, float radius, ray r)
+class sphere 
 {
-	vec3 oc = r.origin - center;
-
-	float a = dot(r.direction, r.direction);
-	float b = 2 * dot(oc, r.direction);
-	float c = dot(oc, oc) - radius * radius;
-	float discriminant = b * b - 4.0 * a * c;
-	if (discriminant < 0.0) 
+	vec3 center;
+	float radius;
+	void make(vec3 cen, float r) 
 	{
-		return -1.0;
+		center = cen;
+		radius = r;
 	}
-	else 
+	//does the ray hit the sphere?
+	bool hit(ray r, float t_min, float t_max, out hit_record record)
 	{
-		return ( (-b -sqrt( discriminant )) / (2.0 * a) );
+		vec3 oc = r.origin - center;
+
+		float a = dot(r.direction, r.direction);
+		float b = dot(oc, r.direction);
+		float c = dot(oc, oc) - radius * radius;
+		float discriminant = b * b - a * c;
+
+		if (discriminant > 0.0)
+		{
+			float temp = (-b - sqrt(discriminant)) / a;
+			if (temp < t_max && temp > t_min)
+			{
+				record.t = temp;
+				record.position = r.point_at_parameter(record.t);
+				record.normal = (record.position - center) / radius;
+				return true;
+			}
+			temp = (-b + sqrt(discriminant)) / a;
+			if (temp < t_max && temp > t_min) {
+				record.t = temp;
+				record.position = r.point_at_parameter(record.t);
+				record.normal = (record.position - center) / radius;
+				return true;
+			}
+		}
+		return false;
 	}
 };
+
+static const uint NUMBER_OF_SPHERES = 2;
+static const sphere WORLD[NUMBER_OF_SPHERES] =
+{
+	{ vec3(0.0, 0.0, -1.0), 0.5 },
+	{ vec3(0.0, -100.5, -1.0), 100.0 }
+};
+static const uint MAXIMUM_DEPTH = 25;
+
+bool hit_anything(ray r, float t_min, float t_max, out hit_record record) 
+{
+	hit_record tempr;
+	bool hit = false;
+	float closest = t_max;
+
+	for (uint i = 0; i < NUMBER_OF_SPHERES; i++)
+	{
+		sphere s = WORLD[i];
+
+		if (s.hit(r, t_min, closest, tempr))
+		{
+			hit = true;
+			closest = tempr.t;
+			record = tempr;
+		}
+	}
+	return hit;
+}
 
 vec3 bgcolor(ray r)
 {
@@ -85,19 +136,15 @@ vec3 bgcolor(ray r)
 	return (1 - t) * vec3(1, 1, 1) + t * vec3(0.5, 0.7, 1);
 }
 
-vec3 color(ray r) 
+vec3 color(ray r)
 {
-	col3 col;
-	col3 spherecenter = { 0,0,-1 };
-	float radius = 0.5;
-	float t = hit_sphere(spherecenter, radius, r);
-	if (t > 0.0)
+	hit_record rec;
+	if (hit_anything(r, 0.0001, MAXIMUM_DEPTH, rec))
 	{
-		vec3 N = normalize(r.point_at_parameter(t) - spherecenter);
-		col = 0.5 * (N + vec3(1, 1, 1)); // rescale normal color to 0-1
+		return 0.5 * (rec.normal + vec3(1, 1, 1));
 	}
-	else col = bgcolor(r);
-	
-	return col;
+	else
+	{
+		return bgcolor(r);
+	}
 }
-
