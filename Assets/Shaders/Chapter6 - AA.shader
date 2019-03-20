@@ -23,20 +23,28 @@
 			c.make();
 
 			vec3 col = { 0,0,0 };
-			for (int j = 0; j < _aa_samples; j++)
+			ray r;
+			if (_aa_samples > 1)
 			{
-				float rand_nr = rand(j*i.uv);
-				float ru = i.uv.x + rand_nr / _ScreenParams.x;
-				float rv = i.uv.y + rand_nr / _ScreenParams.y;
-				ray r;
-				r = c.get_ray(ru, rv);
-				vec3 p = r.point_at_parameter(2.0);
-				col += color(r);
+				for (int j = 1; j <= _aa_samples; j++)
+				{
+					float rand_nr = rand(j*i.uv);
+					float ru = i.uv.x + rand_nr / _ScreenParams.x;
+					float rv = i.uv.y + rand_nr / _ScreenParams.y;
+					r = c.get_ray(ru, rv);
+					vec3 p = r.point_at_parameter(2.0);
+					col += color(r);
+				}
+				col /= _aa_samples;
 			}
-			col /= _aa_samples;
+			else // AA samples = 1. No randomization for cleaner edges.
+			{
+				r = c.get_ray(i.uv.x, i.uv.y);
+				col = color(r);
+			}
 
 			if (_gammacorrect > 0) {
-				col = sqrt(col);
+				col = sqrt(col); // gamma correction
 			}
 			return fixed4(col,1);
 		}
