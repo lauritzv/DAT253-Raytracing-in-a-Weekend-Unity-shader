@@ -44,6 +44,15 @@ float rand(in float2 uv)
 	return abs(noise.x + noise.y) * 0.5;
 };
 
+vec3 random_in_unit_sphere(float rand_nr)
+{
+	vec3 p;
+	do {
+		p = 2.0 * vec3(rand_nr, rand_nr, rand_nr) - vec3(1.0, 1.0, 1.0);
+	} while (dot(p, p) >= 1.0);
+	return p;
+}
+
 class ray
 {
 	void make(vec3 orig, vec3 dir)
@@ -124,13 +133,14 @@ class sphere
 	}
 };
 
-static const uint NUMBER_OF_SPHERES = 2;
+static const uint NUMBER_OF_SPHERES = 3;
 static const sphere WORLD[NUMBER_OF_SPHERES] =
 {
 	{ vec3(0.0, 0.0, -1.0), 0.5 },
+	{ vec3 (-1.11, -0.1, -2.12), 0.5},
 	{ vec3(0.0, -100.5, -1.0), 100.0 }
 };
-static const uint MAXIMUM_DEPTH = 25;
+static const uint MAXIMUM_DEPTH = 7;
 
 bool hit_anything(ray r, float t_min, float t_max, out hit_record record) 
 {
@@ -159,15 +169,23 @@ vec3 bgcolor(ray r)
 	return (1 - t) * vec3(1, 1, 1) + t * vec3(0.5, 0.7, 1);
 }
 
-vec3 color(ray r)
+col3 color(ray r, float rand_nr) // unrolled version from slides
 {
 	hit_record rec;
-	if (hit_anything(r, 0.0001, MAXIMUM_DEPTH, rec))
+	vec3 accumCol = { 1, 1, 1 };
+	int maxC = MAXIMUM_DEPTH;
+	bool foundhit = hit_anything(r, 0.0001, maxC, rec);
+	while (foundhit && (maxC > 0))
 	{
-		return 0.5 * (rec.normal + vec3(1, 1, 1));
+		maxC--;
+		vec3 randdir = rec.position + rec.normal + random_in_unit_sphere(rand_nr);
+		r.make(rec.position, randdir);
+		accumCol = 0.5*accumCol;
+		foundhit = hit_anything(r, 0.0001, maxC, rec);
 	}
-	else
+	if (foundhit && maxC == 0)
 	{
-		return bgcolor(r);
+		return col3(0, 0, 0);
 	}
+	return accumCol * bgcolor(r);
 }

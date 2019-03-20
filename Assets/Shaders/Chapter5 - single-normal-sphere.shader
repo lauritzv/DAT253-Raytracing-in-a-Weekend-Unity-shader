@@ -28,7 +28,7 @@
 			}
 		};
 
-		vec3 color2(ray r)
+		vec3 normal_color(ray r)
 		{
 			col3 col;
 			col3 spherecenter = { 0,0,-1 };
@@ -55,7 +55,7 @@
 			float v = i.uv.y; ray r;
 
 			r.make(origin, lower_left_corner + u * horizontal + v * vertical);
-			vec3 col = color(r);
+			vec3 col = normal_color(r);
 			return fixed4(col,1);
 		}
 		ENDCG

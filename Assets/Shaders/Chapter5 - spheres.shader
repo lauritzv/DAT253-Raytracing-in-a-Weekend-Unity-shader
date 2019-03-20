@@ -15,6 +15,19 @@
 		static const vec3 vertical = { 0, 2, 0 };
 		static const vec3 origin = { 0, 0, 0 };
 
+		vec3 normal_color(ray r)
+		{
+			hit_record rec;
+			if (hit_anything(r, 0.0001, MAXIMUM_DEPTH, rec))
+			{
+				return 0.5 * (rec.normal + vec3(1, 1, 1));
+			}
+			else
+			{
+				return bgcolor(r);
+			}
+		}
+
 		fixed4 frag(v2f i) : SV_Target
 		{
 			float u = i.uv.x;
@@ -23,7 +36,7 @@
 			r.make(origin, lower_left_corner + u * horizontal + v * vertical);
 			vec3 p = r.point_at_parameter(2.0);
 
-			vec3 col = color(r);
+			vec3 col = normal_color(r);
 			return fixed4(col,1);
 		}
 		ENDCG
