@@ -20,7 +20,7 @@
 			vec3 normal_color(ray r)
 			{
 				hit_record rec;
-				if (hit_anything(r, 0.0001, MAXIMUM_DEPTH, rec))
+				if (hit_anything(r, 0.0001, 1000, rec))
 				{
 					return 0.5 * (rec.normal + vec3(1, 1, 1));
 				}
@@ -41,9 +41,9 @@
 				{
 					for (int j = 1; j <= _aa_samples; j++)
 					{
-						float rand_nr = rand(j*i.uv);
-						float ru = i.uv.x + rand_nr / _ScreenParams.x;
-						float rv = i.uv.y + rand_nr / _ScreenParams.y;
+						rand_uv = j * i.uv;
+						float ru = i.uv.x + random_number() / _ScreenParams.x;
+						float rv = i.uv.y + random_number() / _ScreenParams.y;
 						r = c.get_ray(ru, rv);
 						vec3 p = r.point_at_parameter(2.0);
 						col += normal_color(r);
