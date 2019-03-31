@@ -22,13 +22,6 @@ struct v2f
 	float4 vertex : SV_POSITION;
 };
 
-struct hit_record
-{
-	float t;
-	vec3 position;
-	vec3 normal;
-};
-
 v2f vert(appdata v)
 {
 	v2f o;
@@ -65,6 +58,38 @@ vec3 random_in_unit_sphere()
 	return p;
 }
 
+struct hit_record
+{
+	float t;
+	vec3 position;
+	vec3 normal;
+	int object_index;
+};
+
+vec3 reflect(vec3 v, vec3 n)
+{
+	return v - 2 * dot(v, n) * n;
+}
+
+bool refract(vec3 v, vec3 n, float ni_over_nt, out vec3 refracted)
+{
+	vec3 uv = normalize(v);
+	float dt = dot(uv, n);
+	float discriminant = 1.0 - ni_over_nt * ni_over_nt * (1 - dt * dt);
+	if (discriminant > 0)
+	{
+		refracted = ni_over_nt * (uv - n * dt) - n * sqrt(discriminant);
+		return true;
+	}
+	else return false;
+}
+
+float schlick(float cosine, float ref_idx)
+{
+	float r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+	r0 *= r0;
+	return r0 + (1.0 - r0) * pow(1.0 - cosine, 5);
+}
 
 class ray
 {
@@ -107,16 +132,21 @@ class camera
 
 class sphere 
 {
+	// geometry variables:
 	vec3 center;
 	float radius;
-	void make(vec3 cen, float r) 
-	{
-		center = cen;
-		radius = r;
-	}
+
+	// material variables:
+	vec3 albedo;		// color
+	int material_type;	// 0:lambertian diffuse / 1: metallic
+	float fuzz;			// roughness
+	float refraction;	// 2: 
+
 	//does the ray hit the sphere?
 	bool hit(ray r, float t_min, float t_max, out hit_record record)
 	{
+		record.object_index = 0;
+
 		vec3 oc = r.origin - center;
 
 		float a = dot(r.direction, r.direction);
@@ -124,7 +154,7 @@ class sphere
 		float c = dot(oc, oc) - radius * radius;
 		float discriminant = b * b - a * c;
 
-		if (discriminant > 0.0)
+		if (discriminant > 0.0) // intersected!
 		{
 			float temp = (-b - sqrt(discriminant)) / a;
 			if (temp < t_max && temp > t_min)
@@ -144,15 +174,55 @@ class sphere
 		}
 		return false;
 	}
+
+	bool scatter(ray r, hit_record rec, out vec3 attenuation, out ray scattered)
+	{
+		if (material_type == 0) // diffuse lambertian
+		{
+			vec3 target = rec.position + rec.normal + random_in_unit_sphere();
+			r.make(rec.position, target - rec.position);
+			scattered = r;
+			attenuation = albedo;
+			return true;
+		}
+		else if (material_type == 1) // metallic
+		{
+			vec3 reflected = reflect(normalize(r.direction), rec.normal);
+			r.make(rec.position, reflected + fuzz * random_in_unit_sphere() );
+			scattered = r;
+			attenuation = albedo;
+			return (dot(scattered.direction, rec.normal) > 0);
+		}
+		else if (material_type == 2) // refractive dielectric
+		{
+			// TODO
+			//placeholder for page 42:
+			{
+				scattered = r;
+				attenuation = albedo;
+				return false;
+			}
+		}
+		else
+		{
+			scattered = r;
+			attenuation = albedo;
+			return false;
+		}
+	}
+
 };
 
 uint MAXIMUM_DEPTH = 7;
-static const uint NUMBER_OF_SPHERES = 3;
+static const uint NUMBER_OF_SPHERES = 5;
 static const sphere WORLD[NUMBER_OF_SPHERES] =
 {
-	{ vec3(0.0, 0.0, -1.0), 0.5 },
-	{ vec3 (-1.11, -0.1, -2.12), 0.5},
-	{ vec3(0.0, -100.5, -1.0), 100.0 }
+	// vec3 pos, float radius, vec3 albedo, int materialtype, float roughness, float rafraction
+	{ vec3(0.0, 0.0, -1.0)      , 0.5   , vec3(0.8, 0.3, 0.3), 0, 0.0, 1.0}, //diffuse sphere
+	{ vec3(0.0, -100.5, -1.0)   , 100.0 , vec3(0.8, 0.8, 0.0), 0, 0.0, 1.0}, // diffuse "ground"
+	{ vec3(-1.11, -0.1, -2.12)  , 0.5   , vec3(0.3, 0.3, 0.4), 1, 0.3, 1.0},  // metallic sphere
+	{ vec3(1.11, -0.2, -1.0)   , 0.3   , vec3(0.3, 0.3, 0.4), 1, 0.0, 1.0},  // metallic sphere
+	{ vec3(-1.11, 0.3, -1.0)   , 0.4   , vec3(0.3, 0.3, 0.4), 1, 0.0, 1.0}  // metallic sphere
 };
 
 bool hit_anything(ray r, float t_min, float t_max, out hit_record record) 
@@ -170,6 +240,7 @@ bool hit_anything(ray r, float t_min, float t_max, out hit_record record)
 			hit = true;
 			closest = tempr.t;
 			record = tempr;
+			record.object_index = i;
 		}
 	}
 	return hit;
@@ -182,16 +253,22 @@ vec3 bgcolor(ray r)
 	return (1 - t) * vec3(1, 1, 1) + t * vec3(0.5, 0.7, 1);
 }
 
-vec3 color(ray r) {
-
+vec3 color(ray r)
+{
 	vec3 accumCol = vec3(1.0, 1.0, 1.0);
 	hit_record rec;
 
 	for (uint i = 0; i < MAXIMUM_DEPTH && hit_anything(r, 0.001, 1000.0, rec); i++)
 	{
-		vec3 target = rec.position + rec.normal + random_in_unit_sphere();
-		r.make(rec.position, target - rec.position);
-		accumCol *= 0.5;
+		ray scattered;
+		vec3 attenuation;
+
+		WORLD[rec.object_index].scatter(r, rec, attenuation, scattered);
+		r = scattered;
+
+		//vec3 target = rec.position + rec.normal + random_in_unit_sphere();
+		//r.make(rec.position, target - rec.position);
+		accumCol *= attenuation;
 	}
 
 	if (i == MAXIMUM_DEPTH)

@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: material
-  m_Shader: {fileID: 4800000, guid: 14291c795fed8f24586e3d481bf528e5, type: 3}
+  m_Shader: {fileID: 4800000, guid: 720651b2b4a451a4e8c1e9851fb69420, type: 3}
   m_ShaderKeywords: _GAMMACORRECT_ON
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
@@ -56,7 +56,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - MAXIMUM_DEPTH: 17
+    - MAXIMUM_DEPTH: 7
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _Density: 21.5
@@ -74,7 +74,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
-    - _aa_samples: 60
+    - _aa_samples: 50
     - _bl: 2
     - _boolchooser: 0
     - _floatchooser: 0.505
