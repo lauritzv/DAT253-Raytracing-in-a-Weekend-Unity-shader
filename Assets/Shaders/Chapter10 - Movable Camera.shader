@@ -5,6 +5,7 @@
 		// Editor exposed parameters:
 		_aa_samples("Number of AA-samples", Range(1,256)) = 64
 		MAXIMUM_DEPTH("Max depth", Range(2,50)) = 16
+		_vfov("V-FOV", Range(30.0,180.0)) = 90.0
 		[Toggle] _gammacorrect("Gamma-correction", Range(0,1)) = 1  // [Toggle] creates a checkbox in gui and gives it 0 or 1
 
 		// Parameters set from camera script:
@@ -22,7 +23,7 @@
 			
 			int _gammacorrect;
 			int _aa_samples;
-			
+			float _vfov;
 			#include "Assets/Shaders/includes.cginc"
 
 			vec3 _CameraPosition;
@@ -68,7 +69,7 @@
 			fixed4 frag(v2f i) : SV_Target
 			{
 				movable_camera c;
-				c.make(_CameraPosition, _CameraTarget, _CameraUp, 90.0, float(_ScreenParams.x) / float(_ScreenParams.y) );
+				c.make(_CameraPosition, _CameraTarget, _CameraUp, _vfov, float(_ScreenParams.x) / float(_ScreenParams.y) );
 
 				vec3 col = { 0,0,0 };
 				ray r;

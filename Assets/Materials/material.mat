@@ -23,6 +23,7 @@ Material:
     - MAXIMUM_DEPTH: 16
     - _aa_samples: 64
     - _gammacorrect: 1
+    - _vfov: 90
     m_Colors:
     - _CameraPosition: {r: -2, g: 2, b: 1, a: 0}
     - _CameraTarget: {r: 0, g: 0, b: -1, a: 0}
