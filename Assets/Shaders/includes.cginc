@@ -215,7 +215,7 @@ class sphere
 
 };
 
-uint MAXIMUM_DEPTH = 7; // shader parameter
+uint MAXIMUM_DEPTH; // shader parameter
 static const uint NUMBER_OF_SPHERES = 6;
 static const sphere WORLD[NUMBER_OF_SPHERES] =
 {
