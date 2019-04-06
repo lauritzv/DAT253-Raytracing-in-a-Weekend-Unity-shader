@@ -17,6 +17,29 @@
 			int _aa_samples;
 			#include "Assets/Shaders/includes.cginc"
 
+			class camera
+			{
+				vec3 lower_left_corner;
+				vec3 horizontal;
+				vec3 vertical;
+				vec3 origin;
+
+				void make()
+				{
+					lower_left_corner = vec3(-2, -1, -1);
+					horizontal = vec3(4, 0, 0);
+					vertical = vec3(0, 2, 0);
+					origin = vec3(0, 0, 0);
+				}
+
+				ray get_ray(float u, float v)
+				{
+					ray r;
+					r.make(origin, lower_left_corner + u * horizontal + v * vertical - origin);
+					return r;
+				}
+			};
+
 			vec3 normal_color(ray r)
 			{
 				hit_record rec;
