@@ -16,6 +16,7 @@
 
 			int _gammacorrect;
 			int _aa_samples;
+
 			#include "Assets/Shaders/includes.cginc"
 
 			fixed4 frag(v2f i) : SV_Target

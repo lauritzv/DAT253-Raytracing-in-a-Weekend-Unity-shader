@@ -84,9 +84,9 @@ bool refract(vec3 v, vec3 n, float ni_over_nt, out vec3 refracted)
 	else return false;
 }
 
-float schlick(float cosine, float ref_idx)
+float schlick(float cosine, float refraction)
 {
-	float r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+	float r0 = (1.0 - refraction) / (1.0 + refraction);
 	r0 *= r0;
 	return r0 + (1.0 - r0) * pow(1.0 - cosine, 5);
 }
@@ -138,9 +138,9 @@ class sphere
 
 	// material variables:
 	vec3 albedo;		// color
-	int material_type;	// 0:lambertian diffuse / 1: metallic
+	int material_type;	// 0: lambertian diffuse (matte) / 1: metallic (reflective) / 2: dielectric (refractive)
 	float fuzz;			// roughness
-	float refraction;	// 2: 
+	float refraction;	// rafraction index
 
 	//does the ray hit the sphere?
 	bool hit(ray r, float t_min, float t_max, out hit_record record)
@@ -177,7 +177,7 @@ class sphere
 
 	bool scatter(ray r, hit_record rec, out vec3 attenuation, out ray scattered)
 	{
-		if (material_type == 0) // diffuse lambertian
+		if (material_type == 0) // chapter 7: diffuse lambertian
 		{
 			vec3 target = rec.position + rec.normal + random_in_unit_sphere();
 			r.make(rec.position, target - rec.position);
@@ -185,7 +185,8 @@ class sphere
 			attenuation = albedo;
 			return true;
 		}
-		else if (material_type == 1) // metallic
+
+		else if (material_type == 1) // chapter 8: metallic
 		{
 			vec3 reflected = reflect(normalize(r.direction), rec.normal);
 			r.make(rec.position, reflected + fuzz * random_in_unit_sphere() );
@@ -193,17 +194,41 @@ class sphere
 			attenuation = albedo;
 			return (dot(scattered.direction, rec.normal) > 0);
 		}
-		else if (material_type == 2) // refractive dielectric
+
+		else if (material_type == 2) // chapter 9: refractive dielectric
 		{
-			// TODO
-			//placeholder for page 42:
+			vec3 outward_normal;
+			vec3 reflected = reflect(r.direction, rec.normal);
+			float ni_over_nt;
+			attenuation = vec3(1.0, 1.0, 1.0);
+			vec3 refracted;
+			float reflect_prob;
+			float cosine;
+			if (dot(r.direction, rec.normal) > 0.0)
 			{
-				scattered = r;
-				attenuation = albedo;
-				return false;
+				outward_normal = -rec.normal;
+				ni_over_nt = refraction;
+				cosine = dot(r.direction, rec.normal) / length(r.direction);
+				cosine = sqrt(1.0 - refraction * refraction * (1.0 - cosine * cosine));
 			}
+			else
+			{
+				outward_normal = rec.normal;
+				ni_over_nt = 1.0 / refraction;
+				cosine = -dot(r.direction, rec.normal) / length(r.direction);
+			}
+			if (refract(r.direction, outward_normal, ni_over_nt, refracted))
+				reflect_prob = schlick(cosine, refraction);
+			else reflect_prob = 1.0;
+			
+			if (random_number() < reflect_prob)
+				scattered.make(rec.position, reflected);
+			else
+				scattered.make(rec.position, refracted);
+			return true;
 		}
-		else
+		
+		else // invalid material_type
 		{
 			scattered = r;
 			attenuation = albedo;
@@ -214,15 +239,16 @@ class sphere
 };
 
 uint MAXIMUM_DEPTH = 7;
-static const uint NUMBER_OF_SPHERES = 5;
+static const uint NUMBER_OF_SPHERES = 6;
 static const sphere WORLD[NUMBER_OF_SPHERES] =
 {
 	// vec3 pos, float radius, vec3 albedo, int materialtype, float roughness, float rafraction
 	{ vec3(0.0, 0.0, -1.0)      , 0.5   , vec3(0.8, 0.3, 0.3), 0, 0.0, 1.0}, //diffuse sphere
 	{ vec3(0.0, -100.5, -1.0)   , 100.0 , vec3(0.8, 0.8, 0.0), 0, 0.0, 1.0}, // diffuse "ground"
 	{ vec3(-1.11, -0.1, -2.12)  , 0.5   , vec3(0.3, 0.3, 0.4), 1, 0.3, 1.0},  // metallic sphere
-	{ vec3(1.11, -0.2, -1.0)   , 0.3   , vec3(0.3, 0.3, 0.4), 1, 0.0, 1.0},  // metallic sphere
-	{ vec3(-1.11, 0.3, -1.0)   , 0.4   , vec3(0.3, 0.3, 0.4), 1, 0.0, 1.0}  // metallic sphere
+	{ vec3(1.11, -0.2, -1.0)    , 0.3   , vec3(0.3, 0.3, 0.4), 1, 1.5, 1.0},  // metallic sphere
+	{ vec3(-1.0, 0.0, -1.0)     , 0.5   , vec3(1.0, 1.0, 1.0), 2, 0.0, 1.5},  // dielectric sphere outer shell
+	{ vec3(-1.0, 0.0, -1.0)     , -0.45 , vec3(1.0, 1.0, 1.0), 2, 0.0, 1.5}  // dielectric sphere inner shell
 };
 
 bool hit_anything(ray r, float t_min, float t_max, out hit_record record) 

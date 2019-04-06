@@ -1,4 +1,4 @@
-﻿Shader "Unlit/Raytracing/Metal"
+﻿Shader "Unlit/Raytracing/Dielectrics"
 {
 	Properties
 	{
@@ -8,7 +8,6 @@
 	}
 	SubShader
 	{
-		
 		Pass
 		{
 			CGPROGRAM
@@ -18,7 +17,7 @@
 			int _gammacorrect;
 			int _aa_samples;
 
-#include "Assets/Shaders/includes.cginc"
+			#include "Assets/Shaders/includes.cginc"
 
 			fixed4 frag(v2f i) : SV_Target
 			{
