@@ -202,6 +202,7 @@ class sphere
 				scattered.make(rec.position, reflected);
 			else
 				scattered.make(rec.position, refracted);
+
 			return true;
 		}
 		
@@ -267,10 +268,8 @@ vec3 color(ray r)
 		vec3 attenuation;
 
 		WORLD[rec.object_index].scatter(r, rec, attenuation, scattered);
+		
 		r = scattered;
-
-		//vec3 target = rec.position + rec.normal + random_in_unit_sphere();
-		//r.make(rec.position, target - rec.position);
 		accumCol *= attenuation;
 	}
 

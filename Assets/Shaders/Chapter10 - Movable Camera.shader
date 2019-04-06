@@ -68,8 +68,6 @@
 			fixed4 frag(v2f i) : SV_Target
 			{
 				movable_camera c;
-
-				//c.make(vec3(-2.0, 2.0, 1.0), vec3(0.0, 0.0, -1.0), vec3(0.0, 1.0, 0.0), 90.0, float(_ScreenParams.x) / float(_ScreenParams.y) );
 				c.make(_CameraPosition, _CameraTarget, _CameraUp, 90.0, float(_ScreenParams.x) / float(_ScreenParams.y) );
 
 				vec3 col = { 0,0,0 };
