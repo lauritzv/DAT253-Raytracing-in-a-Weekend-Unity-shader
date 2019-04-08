@@ -4,6 +4,7 @@
 	{
 		_aa_samples("Number of AA-samples", Range(1,100)) = 16
 		[Toggle] _gammacorrect("Gamma-correction", Range(0,1)) = 1  // [Toggle] creates a checkbox in gui and gives it 0 or 1
+		_sphereOneHeight("Interactive Sphere Height", Range(-2,5)) = 0
 	}
 	SubShader
 	{

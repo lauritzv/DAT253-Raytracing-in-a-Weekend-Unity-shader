@@ -7,7 +7,10 @@
 		MAXIMUM_DEPTH("Max depth", Range(2,50)) = 16
 		_vfov("V-FOV", Range(30.0,180.0)) = 90.0
 		[Toggle] _gammacorrect("Gamma-correction", Range(0,1)) = 1  // [Toggle] creates a checkbox in gui and gives it 0 or 1
-
+		[Toggle] _sphereOneDielectric("Interactive Sphere Dielectric", Range(0,1)) = 0
+		_sphereOneHeight("Interactive Sphere Height", Range(-2,5)) = 0
+		_sphereOneColor("Interactive Sphere Color", vector) = (0.8, 0.3, 0.3, 1.0)
+		
 		// Parameters set from camera script:
 		[HideInInspector]_CameraPosition("Camera-position", vector) = (-2.0, 2.0, 1.0, 0.0)
 		[HideInInspector]_CameraTarget("Camera-target", vector) = (0.0, 0.0, -1.0, 0.0)

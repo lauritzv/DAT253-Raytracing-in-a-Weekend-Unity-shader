@@ -1,4 +1,4 @@
-﻿Shader "Unlit/Raytracing/NormalSphere"
+﻿Shader "Unlit/Raytracing/RedSphere"
 {
 	SubShader
 	{
@@ -28,20 +28,16 @@
 			}
 		};
 
-		vec3 normal_color(ray r)
+		vec3 red_color(ray r)
 		{
-			col3 col;
 			col3 spherecenter = { 0,0,-1 };
 			float radius = 0.5;
 			float t = hit_sphere(spherecenter, radius, r);
-			if (t > 0.0)
-			{
-				vec3 N = normalize(r.point_at_parameter(t) - spherecenter);
-				col = 0.5 * (N + vec3(1, 1, 1)); // rescale normal color to 0-1
-			}
-			else col = bgcolor(r);
 
-			return col;
+			if (t > 0.0)
+				return vec3(1.0, 0.0, 0.0);
+
+			else return bgcolor(r);
 		}
 
 		fixed4 frag(v2f i) : SV_Target
@@ -55,7 +51,7 @@
 			float v = i.uv.y; ray r;
 
 			r.make(origin, lower_left_corner + u * horizontal + v * vertical);
-			vec3 col = normal_color(r);
+			vec3 col = red_color(r);
 			return fixed4(col,1);
 		}
 		ENDCG

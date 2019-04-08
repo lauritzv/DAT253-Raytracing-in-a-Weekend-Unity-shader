@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: material
   m_Shader: {fileID: 4800000, guid: 720651b2b4a451a4e8c1e9851fb69420, type: 3}
-  m_ShaderKeywords: _GAMMACORRECT_ON
+  m_ShaderKeywords: _GAMMACORRECT_ON _SPHEREONEMETAL_ON
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -23,8 +23,11 @@ Material:
     - MAXIMUM_DEPTH: 16
     - _aa_samples: 64
     - _gammacorrect: 1
+    - _sphereOneDielectric: 0
+    - _sphereOneHeight: 0
     - _vfov: 90
     m_Colors:
     - _CameraPosition: {r: -2, g: 2, b: 1, a: 0}
     - _CameraTarget: {r: 0, g: 0, b: -1, a: 0}
     - _CameraUp: {r: 0, g: 1, b: 0, a: 0}
+    - _sphereOneColor: {r: 0.8, g: 0.3, b: 0.3, a: 1}

@@ -1,5 +1,9 @@
-﻿Shader "Unlit/Raytracing/Spheres"
+﻿Shader "Unlit/Raytracing/NormalSpheres"
 {
+	Properties
+	{
+		_sphereOneHeight("Interactive Sphere Height", Range(-2,5)) = 0
+	}
 	SubShader
 	{
 	Pass
