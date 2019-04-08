@@ -12,36 +12,21 @@ public class maxCamera : MonoBehaviour
 {
     public Transform target;
     public Vector3 targetOffset;
-    public float distance = 5.0f;
-    public float maxDistance = 20;
-    public float minDistance = .6f;
-    public float xSpeed = 200.0f;
-    public float ySpeed = 200.0f;
-    public int yMinLimit = -80;
-    public int yMaxLimit = 80;
-    public int zoomRate = 40;
-    public float panSpeed = 0.3f;
-    public float zoomDampening = 5.0f;
-
-    private float xDeg = 0.0f;
-    private float yDeg = 0.0f;
-    private float currentDistance;
-    private float desiredDistance;
-    private Quaternion currentRotation;
-    private Quaternion desiredRotation;
-    private Quaternion rotation;
-    private Vector3 position;
-
-    private Vector3 _origPosition, _origTargetPosition;
-    private Quaternion _origRotation;
-    private float _origXDeg, _origYDeg;
-
     public Material material;
 
-    void Start() { Init(); }
-    void OnEnable() { Init(); }
+    public float distance = 5.0f, minDistance = .6f, maxDistance = 20;
+    public float xSpeed = 200.0f, ySpeed = 200.0f;
+    public int yMinLimit = -80, yMaxLimit = 80;
+    public int zoomRate = 40;
+    public float panSpeed = 0.3f, zoomDampening = 5.0f;
+    private float xDeg = 0.0f, yDeg = 0.0f;
+    private float currentDistance, desiredDistance, _origXDeg, _origYDeg;
 
-    public void Init()
+    private Quaternion currentRotation, desiredRotation, rotation, _origRotation;
+    private Vector3 position, _origPosition, _origTargetPosition;
+
+
+    void Start()
     {
         distance = Vector3.Distance(transform.position, target.position);
         currentDistance = distance;
@@ -64,9 +49,6 @@ public class maxCamera : MonoBehaviour
         _origYDeg = yDeg;
     }
 
-    /*
-     * Camera logic on LateUpdate to only update after all character movement logic has been handled.
-     */
     void LateUpdate()
     {
         if (Input.GetKeyDown(KeyCode.R))
@@ -100,6 +82,7 @@ public class maxCamera : MonoBehaviour
         {
             desiredDistance -= Input.GetAxis("Mouse Y") * Time.deltaTime * zoomRate * 0.125f * Mathf.Abs(desiredDistance);
         }
+
         // If right mouse and left alt are selected? ORBIT
         else if (Input.GetKey(KeyCode.LeftAlt))
         {
@@ -117,6 +100,7 @@ public class maxCamera : MonoBehaviour
             rotation = Quaternion.Lerp(currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
             transform.rotation = rotation;
         }
+
         // otherwise if right mouse is selected, we pan by way of transforming the target in screenspace
         else
         {

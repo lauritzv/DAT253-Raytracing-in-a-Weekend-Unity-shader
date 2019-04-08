@@ -7,7 +7,6 @@
 // https://docs.unity3d.com/Manual/SL-ShaderPrograms.html
 
 typedef vector <float, 3> vec3;  // to get more similar code to book
-typedef vector <float, 2> vec2;
 typedef vector <fixed, 3> col3;
 
 struct appdata
@@ -35,7 +34,7 @@ static float2 rand_uv = float2(0.0, 0.0);
 
 //// http://www.reedbeta.com/blog/2013/01/12/quick-and-easy-gpu-random-numbers-in-d3d11/
 //// rand num generator http://gamedev.stackexchange.com/questions/32681/random-number-hlsl
-float noise(in vec2 uv)
+float noise(in float2 uv)
 {
 	float2 n = frac(sin(dot(uv, float2(12.9898, 78.233) * 2.0)) * 43758.5453);
 	return abs(n.x + n.y) * 0.5;
@@ -215,18 +214,20 @@ class sphere
 	}
 
 };
+
+uint MAXIMUM_DEPTH; // shader parameter
+
 int _sphereOneDielectric = 0;
 float _sphereOneHeight = 0.0;
 vec3 _sphereOneColor = (0.8, 0.3, 0.3);
-uint MAXIMUM_DEPTH; // shader parameter
 static const uint NUMBER_OF_SPHERES = 6;
 static const sphere WORLD[NUMBER_OF_SPHERES] =
 {
 	// vec3 pos, float radius, vec3 albedo, int materialtype, float roughness, float rafraction
 	{ vec3(0.0, _sphereOneHeight, -1.0), 0.5   , _sphereOneColor, _sphereOneDielectric * 2, 0.0, 0.8 }, //interactive sphere
 	{ vec3(0.0, -100.5, -1.0)   , 100.0 , vec3(0.8, 0.8, 0.0), 0, 0.0, 1.0}, // diffuse "ground"
-	{ vec3(-1.11, -0.1, -2.12)  , 0.5   , vec3(0.3, 0.3, 0.4), 1, 0.3, 1.0},  // metallic sphere
-	{ vec3(1.11, -0.2, -1.0)    , 0.3   , vec3(0.3, 0.3, 0.4), 1, 1.5, 1.0},  // metallic sphere
+	{ vec3(-1.11, -0.1, -2.12)  , 0.5   , vec3(0.8, 0.8, 0.8), 1, 0.3, 1.0},  // metallic sphere
+	{ vec3(1.11, -0.2, -1.0)    , 0.3   , vec3(0.3, 0.3, 0.8), 0, 0.0, 1.0},  // small diffuse sphere
 	{ vec3(-1.1, 0.0, -1.0)     , 0.5   , vec3(1.0, 1.0, 1.0), 2, 0.0, 1.5},  // dielectric sphere outer shell
 	{ vec3(-1.1, 0.0, -1.0)     , -0.45 , vec3(1.0, 1.0, 1.0), 2, 0.0, 1.5}  // dielectric sphere inner shell
 };
