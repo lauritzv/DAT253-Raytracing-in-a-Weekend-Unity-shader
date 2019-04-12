@@ -6,9 +6,12 @@
 		_aa_samples("Number of AA-samples", Range(1,256)) = 64
 		MAXIMUM_DEPTH("Max depth", Range(2,50)) = 16
 		[Toggle] _gammacorrect("Gamma-correction", Range(0,1)) = 1  // [Toggle] creates a checkbox in gui and gives it 0 or 1
+		
+																	// Conditional parameters
 		[Toggle] _sphereOneDielectric("Interactive Sphere Dielectric", Range(0,1)) = 0
-		_sphereOneHeight("Interactive Sphere Height", Range(-2,5)) = 0
 		_sphereOneColor("Interactive Sphere Color", vector) = (0.8, 0.3, 0.3, 1.0)
+		_sphereOneIor("Interactive Sphere IOR", Range(0.01, 2.0)) = 0.8
+		_sphereTwoFuzz("Metal Sphere Roughness", Range(0.0, 1.0)) = 0.3
 	}
 	SubShader
 	{
