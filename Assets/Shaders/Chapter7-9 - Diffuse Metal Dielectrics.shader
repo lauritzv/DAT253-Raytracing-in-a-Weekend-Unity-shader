@@ -9,7 +9,7 @@
 		
 																	// Conditional parameters
 		[Toggle] _sphereOneDielectric("Interactive Sphere Dielectric", Range(0,1)) = 0
-		_sphereOneColor("Interactive Sphere Color", vector) = (0.8, 0.3, 0.3, 1.0)
+		_sphereOneColor("Interactive Sphere Color", Color) = (0.8, 0.3, 0.3, 1.0)
 		_sphereOneIor("Interactive Sphere IOR", Range(0.01, 2.0)) = 0.8
 		_sphereTwoFuzz("Metal Sphere Roughness", Range(0.0, 1.0)) = 0.3
 	}
