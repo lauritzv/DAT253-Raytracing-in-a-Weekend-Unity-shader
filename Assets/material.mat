@@ -25,9 +25,11 @@ Material:
     - _gammacorrect: 1
     - _sphereOneDielectric: 0
     - _sphereOneHeight: 0
-    - _vfov: 90
+    - _sphereOneIor: 0.8
+    - _sphereTwoFuzz: 0.3
+    - _vfov: 50
     m_Colors:
-    - _CameraPosition: {r: -2, g: 2, b: 1, a: 0}
+    - _CameraPosition: {r: 0, g: 0, b: -4.464102, a: 0}
     - _CameraTarget: {r: 0, g: 0, b: -1, a: 0}
     - _CameraUp: {r: 0, g: 1, b: 0, a: 0}
     - _sphereOneColor: {r: 0.8, g: 0.3, b: 0.3, a: 1}

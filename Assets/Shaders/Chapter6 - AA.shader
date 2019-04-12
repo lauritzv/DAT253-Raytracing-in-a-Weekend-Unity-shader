@@ -69,7 +69,7 @@
 						float ru = i.uv.x + random_number() / _ScreenParams.x;
 						float rv = i.uv.y + random_number() / _ScreenParams.y;
 						r = c.get_ray(ru, rv);
-						vec3 p = r.point_at_parameter(2.0);
+						r.point_at_parameter(2.0);
 						col += normal_color(r);
 					}
 					col /= _aa_samples;

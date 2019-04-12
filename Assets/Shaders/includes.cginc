@@ -219,17 +219,20 @@ uint MAXIMUM_DEPTH; // shader parameter
 
 int _sphereOneDielectric = 0;
 float _sphereOneHeight = 0.0;
+float _sphereOneIor = 0.8;
+float _sphereTwoFuzz = 0.3;
+
 vec3 _sphereOneColor = (0.8, 0.3, 0.3);
 static const uint NUMBER_OF_SPHERES = 6;
 static const sphere WORLD[NUMBER_OF_SPHERES] =
 {
 	// vec3 pos, float radius, vec3 albedo, int materialtype, float roughness, float rafraction
-	{ vec3(0.0, _sphereOneHeight, -1.0), 0.5   , _sphereOneColor, _sphereOneDielectric * 2, 0.0, 0.8 }, //interactive sphere
-	{ vec3(0.0, -100.5, -1.0)   , 100.0 , vec3(0.8, 0.8, 0.0), 0, 0.0, 1.0}, // diffuse "ground"
-	{ vec3(-1.11, -0.1, -2.12)  , 0.5   , vec3(0.8, 0.8, 0.8), 1, 0.3, 1.0},  // metallic sphere
+	{ vec3(0.0, _sphereOneHeight, -1.0), 0.5   , _sphereOneColor, _sphereOneDielectric * 2, 0.0, _sphereOneIor }, //interactive sphere
+	{ vec3(-1.11, -0.1, -2.12)  , 0.5   , vec3(0.8, 0.8, 0.8), 1, _sphereTwoFuzz, 1.0},  // metallic sphere
 	{ vec3(1.11, -0.2, -1.0)    , 0.3   , vec3(0.3, 0.3, 0.8), 0, 0.0, 1.0},  // small diffuse sphere
 	{ vec3(-1.1, 0.0, -1.0)     , 0.5   , vec3(1.0, 1.0, 1.0), 2, 0.0, 1.5},  // dielectric sphere outer shell
-	{ vec3(-1.1, 0.0, -1.0)     , -0.45 , vec3(1.0, 1.0, 1.0), 2, 0.0, 1.5}  // dielectric sphere inner shell
+	{ vec3(-1.1, 0.0, -1.0)     , -0.45 , vec3(1.0, 1.0, 1.0), 2, 0.0, 1.5},  // dielectric sphere inner shell
+	{ vec3(0.0, -100.5, -1.0)   , 100.0 , vec3(0.8, 0.8, 0.0), 0, 0.0, 1.0} // diffuse "ground"
 };
 
 bool hit_anything(ray r, float t_min, float t_max, out hit_record record) 
